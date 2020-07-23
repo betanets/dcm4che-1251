@@ -50,7 +50,7 @@
   <name>dcm4che-assembly</name>
   <description>Assemble dcm4che distribution packages</description>
      <build>
-         <finalName>dcm4che-${project.version}</finalName>
+         <finalName>dcm4che-1251-${project.version}</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-remote-resources-plugin</artifactId>

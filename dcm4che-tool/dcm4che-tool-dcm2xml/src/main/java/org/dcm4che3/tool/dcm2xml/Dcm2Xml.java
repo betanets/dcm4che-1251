@@ -59,6 +59,7 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
+import org.dcm4che3.data.SpecificCharacterSet;
 import org.dcm4che3.io.*;
 import org.dcm4che3.io.DicomInputStream.IncludeBulkData;
 import org.dcm4che3.tool.common.CLIUtils;
@@ -85,6 +86,7 @@ public class Dcm2Xml {
     private File blkDirectory;
     private BasicBulkDataDescriptor bulkDataDescriptor = new BasicBulkDataDescriptor();
     private String xmlVersion = XML_1_0;
+    private static String forceCharset = null;
 
     public final void setXSLTURL(String xsltURL) {
         this.xsltURL = xsltURL;
@@ -149,6 +151,7 @@ public class Dcm2Xml {
         opts.addOption("K", "no-keyword", false, rb.getString("no-keyword"));
         opts.addOption(null, "xmlns", false, rb.getString("xmlns"));
         opts.addOption(null, "xml11", false, rb.getString("xml11"));
+        opts.addOption("FCs", "force-charset", true, rb.getString("force-charset"));
         addBulkdataOptions(opts);
 
         return CLIUtils.parseComandLine(args, opts, rb, Dcm2Xml.class);
@@ -213,6 +216,9 @@ public class Dcm2Xml {
             main.setIncludeKeyword(!cl.hasOption("K"));
             main.setIncludeNamespaceDeclaration(cl.hasOption("xmlns")); if (cl.hasOption("xml11"))
                 main.setXMLVersion(XML_1_1);
+            if (cl.hasOption("FCs")) {
+                forceCharset = cl.getOptionValue("FCs");
+            }
             configureBulkdata(main, cl);
             String fname = fname(cl.getArgList());
             if (fname.equals("-")) {
@@ -301,7 +307,8 @@ public class Dcm2Xml {
         }
         t.setOutputProperty(OutputKeys.VERSION, xmlVersion);
         th.setResult(new StreamResult(System.out));
-        SAXWriter saxWriter = new SAXWriter(th);
+        SAXWriter saxWriter = new SAXWriter(th,
+                forceCharset != null ? SpecificCharacterSet.valueOf(forceCharset) : null);
         saxWriter.setIncludeKeyword(includeKeyword);
         saxWriter.setIncludeNamespaceDeclaration(includeNamespaceDeclaration);
         dis.setDicomInputHandler(saxWriter);

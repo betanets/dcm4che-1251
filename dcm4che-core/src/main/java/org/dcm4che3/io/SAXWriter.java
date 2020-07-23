@@ -73,8 +73,15 @@ public class SAXWriter implements DicomInputHandler {
     private final AttributesImpl atts = new AttributesImpl();
     private final char[] buffer = new char[BUFFER_LENGTH];
 
+    private SpecificCharacterSet customSpecificCharset = null;
+
     public SAXWriter(ContentHandler ch) {
         this.ch = ch;
+    }
+
+    public SAXWriter(ContentHandler ch, SpecificCharacterSet specificCharacterSet) {
+        this(ch);
+        this.customSpecificCharset = specificCharacterSet;
     }
 
     public final boolean isIncludeKeyword() {
@@ -100,7 +107,7 @@ public class SAXWriter implements DicomInputHandler {
     }
 
     private void writeItem(final Attributes item) throws SAXException {
-        final SpecificCharacterSet cs = item.getSpecificCharacterSet();
+        final SpecificCharacterSet cs = customSpecificCharset != null ? customSpecificCharset : item.getSpecificCharacterSet();
         try {
             item.accept(new Attributes.Visitor(){
 
@@ -183,7 +190,7 @@ public class SAXWriter implements DicomInputHandler {
             writeAttribute((Value) value, attrs.bigEndian());
         else if (!vr.isInlineBinary()) {
             writeValues(vr, value, attrs.bigEndian(),
-                    attrs.getSpecificCharacterSet(vr));
+                    customSpecificCharset != null ? customSpecificCharset : attrs.getSpecificCharacterSet(vr));
         } else if (value instanceof byte[]) {
             writeInlineBinary(attrs.bigEndian()
                     ? vr.toggleEndian((byte[]) value, true)
@@ -263,8 +270,8 @@ public class SAXWriter implements DicomInputHandler {
                                 : b);
                     else
                         writeValues(vr, b, dis.bigEndian(),
-                                attrs.getSpecificCharacterSet(vr));
-                 }
+                                customSpecificCharset != null ? customSpecificCharset : attrs.getSpecificCharacterSet(vr));
+                }
             }
             endElement("DicomAttribute");
         } catch (SAXException e) {

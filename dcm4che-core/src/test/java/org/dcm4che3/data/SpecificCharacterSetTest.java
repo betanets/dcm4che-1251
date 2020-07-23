@@ -77,6 +77,7 @@ public class SpecificCharacterSetTest {
     private static final String CHINESE_PERSON_NAME_GB18030 =
             "Wang^XiaoDong=王^小东=";
     private static final String FINNISH_PERSON_NAME = "Šiškino^Žuža";
+    private static final String WIN1251_PERSON_NAME = "СЕМЕЧКИНА^М^Ю";
 
     private static final byte[] GERMAN_PERSON_NAME_BYTE = {
             (byte) 0xc4, (byte) 0x6e, (byte) 0x65, (byte) 0x61, (byte) 0x73,
@@ -209,6 +210,11 @@ public class SpecificCharacterSetTest {
             (byte) 0x6e, (byte) 0x6f, (byte) 0x5e, (byte) 0x8e, (byte) 0x75,
             (byte) 0x9e, (byte) 0x61 };
 
+    private static final byte[] WIN1251_PERSON_NAME_BYTE = {
+            (byte) 0xd1, (byte) 0xc5, (byte) 0xcc, (byte) 0xc5, (byte) 0xd7,
+            (byte) 0xca, (byte) 0xc8, (byte) 0xcd, (byte) 0xc0, (byte) 0x5e,
+            (byte) 0xcc, (byte) 0x5e, (byte) 0xde};
+
     private SpecificCharacterSet iso8859_1() {
         return SpecificCharacterSet.valueOf(new String[] { "ISO_IR 100" });
     }
@@ -261,6 +267,8 @@ public class SpecificCharacterSetTest {
         return SpecificCharacterSet.valueOf(new String[] { "GBK" });
     }
 
+    private SpecificCharacterSet windows1251() { return SpecificCharacterSet.valueOf(new String[] { "windows-1251" });}
+
     @Test
     public void testEncodeGermanPersonName() {
         assertArrayEquals(GERMAN_PERSON_NAME_BYTE,
@@ -295,6 +303,12 @@ public class SpecificCharacterSetTest {
     public void testDecodeRussianPersonName() {
         assertEquals(RUSSIAN_PERSON_NAME,
                 iso8859_5().decode(RUSSIAN_PERSON_NAME_BYTE));
+    }
+
+    @Test
+    public void testDecodeWindows1251Name() {
+        assertEquals(WIN1251_PERSON_NAME,
+                windows1251().decode(WIN1251_PERSON_NAME_BYTE));
     }
 
     @Test
@@ -443,7 +457,7 @@ public class SpecificCharacterSetTest {
     
     @Test
     public void testDecodeJISX0201EdgeCases() {
-        // Cover some illegal/undefined cases to verify that they do not result in exceptions. 
+        // Cover some illegal/undefined cases to verify that they do not result in exceptions.
         // Some of the resulting strings are not meaningful.
         byte[][] edgeCases = new byte[][] {
                 {},
@@ -528,6 +542,17 @@ public class SpecificCharacterSetTest {
         try {
             assertEquals(FINNISH_PERSON_NAME,
                     iso8859_1().decode(FINNISH_PERSON_NAME_WINDOWS_1252_BYTE));
+        } finally {
+            SpecificCharacterSet.resetCharsetNameMappings();
+        }
+    }
+
+    @Test
+    public void testDecodeRussianPersonNameWindows1251() {
+        SpecificCharacterSet.setCharsetNameMapping("windows-1251", "windows-1251");
+        try {
+            assertEquals(WIN1251_PERSON_NAME,
+                    windows1251().decode(WIN1251_PERSON_NAME_BYTE));
         } finally {
             SpecificCharacterSet.resetCharsetNameMappings();
         }

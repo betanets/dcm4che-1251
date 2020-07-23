@@ -90,9 +90,10 @@ public class SpecificCharacterSet {
         KS_X_1001(false, 0x2842, 0x242943, -1),
         GB2312(false, 0x2842, 0x242941, -1),
         UTF_8(true, 0, 0, -1),
-        GB18030(false, 0, 0, -1);
+        GB18030(false, 0, 0, -1),
+        WINDOWS_1251(false, 0, 0, 1);
 
-        private static final String[] charsetNames = resetCharsetNames(new String[18]);
+        private static final String[] charsetNames = resetCharsetNames(new String[19]);
         private final boolean containsASCII;
         private final int escSeq0;
         private final int escSeq1;
@@ -128,6 +129,7 @@ public class SpecificCharacterSet {
             charsetNames[15] = "GB2312";
             charsetNames[16] = "UTF-8";
             charsetNames[17] = "GB18030";
+            charsetNames[18] = "windows-1251";
             return charsetNames;
         }
 
@@ -193,6 +195,8 @@ public class SpecificCharacterSet {
                 case "GB18030":
                 case "GBK":
                     return Codec.GB18030;
+                case "windows-1251":
+                    return Codec.WINDOWS_1251;
             }
             return defCodec;
         }
